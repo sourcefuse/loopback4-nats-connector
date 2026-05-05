@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/node/.claude/plugins/cache/context-mode/context-mode/1.0.94/hooks/pretooluse.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/node/.claude/plugins/cache/context-mode/context-mode/1.0.94/hooks/posttooluse.mjs\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/node/.claude/plugins/cache/context-mode/context-mode/1.0.94/hooks/precompact.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/node/.claude/plugins/cache/context-mode/context-mode/1.0.94/hooks/sessionstart.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

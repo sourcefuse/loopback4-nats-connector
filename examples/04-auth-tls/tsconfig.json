@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "dist",
+    "composite": false,
+    "incremental": false,
+    "declaration": false,
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "scenario.ts",
+    "../_shared/get-port.ts",
+    "../_shared/nats-server-launcher.ts",
+    "../_shared/application-runner.ts",
+    "../_shared/assert.ts"
+  ],
+  "exclude": ["dist", "node_modules", "../_shared/dist", "src/__tests__"]
+}

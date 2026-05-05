@@ -1,0 +1,35 @@
+{
+  "name": "04-auth-tls",
+  "version": "0.0.1",
+  "description": "NATS example: mTLS auth with self-signed CA + client cert",
+  "keywords": [
+    "loopback-application",
+    "loopback"
+  ],
+  "private": true,
+  "main": "dist/04-auth-tls/src/index.js",
+  "engines": {
+    "node": "20 || 22 || 24"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/04-auth-tls/src/index.js",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "loopback-nats-connector": "file:../..",
+    "@loopback/boot": "^8.0.12",
+    "@loopback/core": "^7.0.11",
+    "@loopback/rest": "^15.0.12",
+    "@loopback/rest-explorer": "^8.0.12",
+    "@nats-io/transport-node": "^3",
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "rimraf": "^5.0.10",
+    "source-map-support": "^0.5.21",
+    "typescript": "~5.2.2"
+  }
+}
