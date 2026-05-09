@@ -5,3 +5,8 @@ coverage/
 examples/
 knowledge/
 docs/
+
+.cz_config.js
+commitlint.config.js
+
+.eslintignore

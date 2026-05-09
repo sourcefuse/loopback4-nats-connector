@@ -1,6 +1,29 @@
-# loopback-nats-connector
+<a href="https://sourcefuse.github.io/arc-docs/arc-api-docs" target="_blank"><img src="https://github.com/sourcefuse/loopback4-microservice-catalog/blob/master/docs/assets/logo-dark-bg.png?raw=true" alt="ARC By SourceFuse logo" title="ARC By SourceFuse" align="right" width="150" /></a>
 
-[![LoopBack](https://github.com/loopbackio/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-\(blue\)-@2x.png)](http://loopback.io/)
+# [loopback4-nats-connector](https://github.com/sourcefuse/loopback4-nats-connector)
+
+<p align="left">
+<a href="https://www.npmjs.com/package/loopback4-nats-connector">
+<img src="https://img.shields.io/npm/v/loopback4-nats-connector.svg" alt="npm version" />
+</a>
+<a href="https://sonarcloud.io/summary/new_code?id=sourcefuse_loopback4-nats-connector" target="_blank">
+<img alt="Sonar Quality Gate" src="https://img.shields.io/sonar/quality_gate/sourcefuse_loopback4-nats-connector?server=https%3A%2F%2Fsonarcloud.io">
+</a>
+<a href="https://github.com/sourcefuse/loopback4-nats-connector/graphs/contributors" target="_blank">
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/sourcefuse/loopback4-nats-connector?">
+</a>
+<a href="https://www.npmjs.com/package/loopback4-nats-connector" target="_blank">
+<img alt="downloads" src="https://img.shields.io/npm/dw/loopback4-nats-connector.svg">
+</a>
+<a href="https://github.com/sourcefuse/loopback4-nats-connector/blob/main/LICENSE">
+<img src="https://img.shields.io/github/license/sourcefuse/loopback4-nats-connector.svg" alt="License" />
+</a>
+<a href="https://loopback.io/" target="_blank">
+<img alt="Powered By LoopBack 4" src="https://img.shields.io/badge/Powered%20by-LoopBack 4-brightgreen" />
+</a>
+</p>
+
+## Overview
 
 A [LoopBack 4](https://loopback.io/doc/en/lb4/) extension that exposes
 [NATS](https://nats.io/) to LB4 applications as an injectable component.
@@ -12,11 +35,11 @@ Decorate controller methods with `@subscribe` / `@reply`, inject a
 
 ## Roadmap at a glance
 
-| Version | Surface |
-|---|---|
-| **v1** | Pub/Sub, Request/Reply, subject hierarchy + wildcards, queue groups, auth (TLS / user-pass / token / NKEYS), TLS encryption, connection management, multi-connection isolation, pluggable codec, status events. |
-| **v2** | JetStream: persistent streams, **`@jsConsume` push consumers** (autoAck + manual ack/nak/term/inProgress), durable subscriptions, **consumer offset tracking via `JsContext.meta`**, **`deliverPolicy` replay (`all`/`last`/`new`/`lastPerSubject`/`byStartSequence`/`byStartTime`)**, **`filterSubject` narrowing**, max-delivery cap, **`JetStreamKvRepository<T>`** base class. **Implemented in 0.2.0.** |
-| **v3** | Clustering surface, monitoring/metrics endpoint, NATS Services API. |
+| Version | Surface                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **v1**  | Pub/Sub, Request/Reply, subject hierarchy + wildcards, queue groups, auth (TLS / user-pass / token / NKEYS), TLS encryption, connection management, multi-connection isolation, pluggable codec, status events.                                                                                                                                                                                              |
+| **v2**  | JetStream: persistent streams, **`@jsConsume` push consumers** (autoAck + manual ack/nak/term/inProgress), durable subscriptions, **consumer offset tracking via `JsContext.meta`**, **`deliverPolicy` replay (`all`/`last`/`new`/`lastPerSubject`/`byStartSequence`/`byStartTime`)**, **`filterSubject` narrowing**, max-delivery cap, **`JetStreamKvRepository<T>`** base class. **Implemented in 0.2.0.** |
+| **v3**  | Clustering surface, monitoring/metrics endpoint, NATS Services API.                                                                                                                                                                                                                                                                                                                                          |
 
 Full feature scope per version: [`docs/plan/01-scope.md`](./docs/plan/01-scope.md).
 
@@ -27,7 +50,6 @@ Once published (target: `0.1.0`):
 ```sh
 npm install loopback-nats-connector
 ```
-
 
 ## Basic usage (v1, single connection)
 
@@ -41,7 +63,9 @@ import {
   NatsConnectorComponentBindings,
 } from 'loopback-nats-connector';
 
-export class MyApp extends BootMixin(ServiceMixin(RepositoryMixin(RestApplication))) {
+export class MyApp extends BootMixin(
+  ServiceMixin(RepositoryMixin(RestApplication)),
+) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
@@ -71,7 +95,10 @@ export class HelloController {
 
   @subscribe('hello.*')
   async greet(payload: {name: string}, ctx: SubscriptionContext) {
-    await this.publisher.publish('audit', {greeted: payload.name, at: Date.now()});
+    await this.publisher.publish('audit', {
+      greeted: payload.name,
+      at: Date.now(),
+    });
   }
 
   @reply('hello.health')
@@ -103,7 +130,12 @@ this.configure(NatsConnectorComponentBindings.COMPONENT).to({
     },
     ingress: {
       servers: ['nats://public-broker:4222'],
-      auth: {tls: {certFile: '/secrets/ingress.crt', keyFile: '/secrets/ingress.key'}},
+      auth: {
+        tls: {
+          certFile: '/secrets/ingress.crt',
+          keyFile: '/secrets/ingress.key',
+        },
+      },
     },
   },
 });
@@ -135,19 +167,27 @@ shared handlers follow the fleet via `connection: '*'`:
 
 ```ts
 import {inject} from '@loopback/core';
-import {NatsConnectionRegistry, NatsConnectorComponentBindings as N, subscribe, type SubscriptionContext} from 'loopback-nats-connector';
+import {
+  NatsConnectionRegistry,
+  NatsConnectorComponentBindings as N,
+  subscribe,
+  type SubscriptionContext,
+} from 'loopback-nats-connector';
 
 class OnboardingService {
   constructor(@inject(N.REGISTRY) private nats: NatsConnectionRegistry) {}
   async onTenantCreated(t: {id: string; natsUrl: string; natsToken: string}) {
-    await this.nats.add(t.id, {servers: [t.natsUrl], auth: {token: t.natsToken}});
+    await this.nats.add(t.id, {
+      servers: [t.natsUrl],
+      auth: {token: t.natsToken},
+    });
   }
 }
 
 class FleetController {
   @subscribe('orders.created', {connection: '*'})
   async onOrder(payload: unknown, ctx: SubscriptionContext) {
-    const tenantId = ctx.connection;   // tenant ID = connection name
+    const tenantId = ctx.connection; // tenant ID = connection name
     /* ... */
   }
 }
@@ -174,12 +214,12 @@ The `connection: '*'` path avoids this: decorators are stored as templates
 during `start()` and materialised per-connection each time
 `registry.add(name, opts)` fires.
 
-| Scenario | `connection` value | Works? |
-|---|---|---|
-| Static connection in config | `'myconn'` | ✅ |
-| Dynamic, added before `app.start()` | `'tenant1'` | ✅ |
-| Dynamic, added after `app.start()` | `'tenant1'` | ❌ boot error |
-| Dynamic, added after `app.start()` | `'*'` | ✅ |
+| Scenario                            | `connection` value | Works?        |
+| ----------------------------------- | ------------------ | ------------- |
+| Static connection in config         | `'myconn'`         | ✅            |
+| Dynamic, added before `app.start()` | `'tenant1'`        | ✅            |
+| Dynamic, added after `app.start()`  | `'tenant1'`        | ❌ boot error |
+| Dynamic, added after `app.start()`  | `'*'`              | ✅            |
 
 Reference implementation: [`examples/03-multi-tenant-dynamic/`](./examples/03-multi-tenant-dynamic/).
 
@@ -217,15 +257,15 @@ The complete design specification lives in [`docs/plan/`](./docs/plan/):
 
 ### Find what you need
 
-| Need | Doc |
-|---|---|
-| Named / multiple connections | [09](./docs/plan/09-multi-connection.md) |
-| Per-tenant connections at runtime | [11](./docs/plan/11-dynamic-connections.md) |
-| Swap default JSON codec | [04 §`Codec<T>`](./docs/plan/04-public-api.md) |
-| Set / read `MsgHdrs` | [04 §Header construction](./docs/plan/04-public-api.md) |
-| Raw `NatsConnection` escape hatch | [04 §Raw connection escape hatch](./docs/plan/04-public-api.md) |
-| Disconnect / reconnect events | [06 §Status event taxonomy](./docs/plan/06-lifecycle.md) |
-| JetStream consumer (v2) | [04 §`@jsConsume`](./docs/plan/04-public-api.md), [08 §2.1](./docs/plan/08-roadmap.md) |
+| Need                                | Doc                                                                                     |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| Named / multiple connections        | [09](./docs/plan/09-multi-connection.md)                                                |
+| Per-tenant connections at runtime   | [11](./docs/plan/11-dynamic-connections.md)                                             |
+| Swap default JSON codec             | [04 §`Codec<T>`](./docs/plan/04-public-api.md)                                          |
+| Set / read `MsgHdrs`                | [04 §Header construction](./docs/plan/04-public-api.md)                                 |
+| Raw `NatsConnection` escape hatch   | [04 §Raw connection escape hatch](./docs/plan/04-public-api.md)                         |
+| Disconnect / reconnect events       | [06 §Status event taxonomy](./docs/plan/06-lifecycle.md)                                |
+| JetStream consumer (v2)             | [04 §`@jsConsume`](./docs/plan/04-public-api.md), [08 §2.1](./docs/plan/08-roadmap.md)  |
 | `requestMany` (v3, v1 escape hatch) | [04 §`requestMany`](./docs/plan/04-public-api.md), [08 §3.3](./docs/plan/08-roadmap.md) |
 
 ## Imports cheat sheet
@@ -238,9 +278,11 @@ debug against nats.js docs without contract drift.
 import {
   // component
   NatsConnectorComponent,
-  NatsConnectorComponentBindings,         // also exported as `N` alias in examples below
+  NatsConnectorComponentBindings, // also exported as `N` alias in examples below
   // decorators (v1)
-  subscribe, queueSubscribe, reply,
+  subscribe,
+  queueSubscribe,
+  reply,
   // service
   NatsPublisher,
   // header factory + type (re-exported from nats.js)
@@ -261,17 +303,17 @@ import {
 
 First-failure debugging path. Symptom on the left, where to look on the right.
 
-| Symptom | Look at |
-|---|---|
-| Boot rejects: `cannot resolve N.connection('default')` | No connection named `default`. Either rename one in `connections`, or pass `{connection: '<name>'}` on every decorator. See [09 §named-connection model](./docs/plan/09-multi-connection.md). |
-| Boot rejects naming a decorator + connection | Decorator references unknown connection name. Fix the name in the `@subscribe` opts or add the connection to options. [06 §Failure modes](./docs/plan/06-lifecycle.md). |
-| Disconnects, reconnect noise, slow consumer | Subscribe to per-connection emitter at `N.events('<name>')`. Full event list + payloads: [06 §Status event taxonomy](./docs/plan/06-lifecycle.md). |
-| `request()` rejects with `code: '503'` | No responder for subject (nats.js behavior, surfaced unchanged). Check subscriber registered, broker reachable, subject typo. [04 §`NatsPublisher`](./docs/plan/04-public-api.md). |
-| Need a nats.js method missing from `NatsPublisher` (e.g. `requestMany`) | Inject raw `NatsConnection` at `N.CONNECTION`. [04 §Raw connection escape hatch](./docs/plan/04-public-api.md). |
-| `headers()` import not found | Re-exported from package root: `import {headers} from 'loopback-nats-connector'`. Do not import from `nats`. |
-| Multi-tenant: messages published in onboarding race window lost | Documented behavior on core NATS. Mitigation options: [11 §Race window](./docs/plan/11-dynamic-connections.md). |
-| Codec decode fails on inbound | Raw bytes available on `ctx.raw`. [05 §error propagation](./docs/plan/05-internals.md). |
-| One connection failed at boot, others fine | Intentional. Subscriptions targeting the failed name raise loudly during booter pass. [06 §Failure modes](./docs/plan/06-lifecycle.md). |
+| Symptom                                                                 | Look at                                                                                                                                                                                       |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Boot rejects: `cannot resolve N.connection('default')`                  | No connection named `default`. Either rename one in `connections`, or pass `{connection: '<name>'}` on every decorator. See [09 §named-connection model](./docs/plan/09-multi-connection.md). |
+| Boot rejects naming a decorator + connection                            | Decorator references unknown connection name. Fix the name in the `@subscribe` opts or add the connection to options. [06 §Failure modes](./docs/plan/06-lifecycle.md).                       |
+| Disconnects, reconnect noise, slow consumer                             | Subscribe to per-connection emitter at `N.events('<name>')`. Full event list + payloads: [06 §Status event taxonomy](./docs/plan/06-lifecycle.md).                                            |
+| `request()` rejects with `code: '503'`                                  | No responder for subject (nats.js behavior, surfaced unchanged). Check subscriber registered, broker reachable, subject typo. [04 §`NatsPublisher`](./docs/plan/04-public-api.md).            |
+| Need a nats.js method missing from `NatsPublisher` (e.g. `requestMany`) | Inject raw `NatsConnection` at `N.CONNECTION`. [04 §Raw connection escape hatch](./docs/plan/04-public-api.md).                                                                               |
+| `headers()` import not found                                            | Re-exported from package root: `import {headers} from 'loopback-nats-connector'`. Do not import from `nats`.                                                                                  |
+| Multi-tenant: messages published in onboarding race window lost         | Documented behavior on core NATS. Mitigation options: [11 §Race window](./docs/plan/11-dynamic-connections.md).                                                                               |
+| Codec decode fails on inbound                                           | Raw bytes available on `ctx.raw`. [05 §error propagation](./docs/plan/05-internals.md).                                                                                                       |
+| One connection failed at boot, others fine                              | Intentional. Subscriptions targeting the failed name raise loudly during booter pass. [06 §Failure modes](./docs/plan/06-lifecycle.md).                                                       |
 
 ## Requirements
 
