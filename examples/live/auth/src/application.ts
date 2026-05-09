@@ -1,9 +1,15 @@
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
-import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
+import {
+  RestExplorerBindings,
+  RestExplorerComponent,
+} from '@loopback/rest-explorer';
 import {RestApplication} from '@loopback/rest';
 import {MySequence} from './sequence';
-import {NatsConnectorComponent, NatsConnectorComponentBindings} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponent,
+  NatsConnectorComponentBindings,
+} from 'loopback-nats-connector';
 
 export {ApplicationConfig};
 
@@ -17,6 +23,12 @@ export class AuthApp extends BootMixin(RestApplication) {
     if (nats) this.configure(NatsConnectorComponentBindings.COMPONENT).to(nats);
     this.component(NatsConnectorComponent);
     this.projectRoot = __dirname;
-    this.bootOptions = {controllers: {dirs: ['controllers'], extensions: ['.controller.js'], nested: true}};
+    this.bootOptions = {
+      controllers: {
+        dirs: ['controllers'],
+        extensions: ['.controller.js'],
+        nested: true,
+      },
+    };
   }
 }

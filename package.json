@@ -24,7 +24,7 @@
     "lint": "npm run prettier:check && npm run eslint",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
     "prettier:cli": "prettier \"**/*.ts\" \"**/*.js\"",
-    "prettier:check": "npm run prettier:cli -- -l",
+    "prettier:check": "npm run prettier:cli -- --check",
     "prettier:fix": "npm run prettier:cli -- --write",
     "eslint": "eslint .",
     "eslint:fix": "npm run eslint -- --fix",
@@ -59,6 +59,7 @@
     "@nats-io/jetstream": "^3.3.1",
     "@nats-io/kv": "^3",
     "@nats-io/transport-node": "^3",
+    "disposablestack": "^1.1.8",
     "tslib": "^2.0.0"
   },
   "devDependencies": {

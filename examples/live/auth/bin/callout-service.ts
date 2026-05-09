@@ -25,7 +25,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {connect} from '@nats-io/transport-node';
 import {fromSeed, fromPublic, fromCurveSeed} from '@nats-io/nkeys';
-import {decode, encodeUser, encodeAuthorizationResponse, Algorithms} from '@nats-io/jwt';
+import {
+  decode,
+  encodeUser,
+  encodeAuthorizationResponse,
+  Algorithms,
+} from '@nats-io/jwt';
 
 interface UserRec {
   pass: string;
@@ -34,20 +39,25 @@ interface UserRec {
 }
 const USERS: Record<string, UserRec> = {
   alice: {pass: 'alice', account: 'APP'},
-  bob:   {pass: 'bob',   account: 'APP', permissions: {pub: {allow: ['bob.>']}, sub: {allow: ['bob.>', '_INBOX.>']}}},
-  sys:   {pass: 'sys',   account: 'SYS'},
+  bob: {
+    pass: 'bob',
+    account: 'APP',
+    permissions: {pub: {allow: ['bob.>']}, sub: {allow: ['bob.>', '_INBOX.>']}},
+  },
+  sys: {pass: 'sys', account: 'SYS'},
 };
-
 
 async function main() {
   const keysFile = path.join(__dirname, 'callout-keys.json');
   if (!fs.existsSync(keysFile)) {
-    console.error('Missing bin/callout-keys.json — run `npm run gen-callout-keys` first');
+    console.error(
+      'Missing bin/callout-keys.json — run `npm run gen-callout-keys` first',
+    );
     process.exit(1);
   }
   const keys = JSON.parse(fs.readFileSync(keysFile, 'utf8'));
   const issuer = fromSeed(new TextEncoder().encode(keys.issuerSeed));
-  const xkey   = fromCurveSeed(new TextEncoder().encode(keys.issuerXseed));
+  const xkey = fromCurveSeed(new TextEncoder().encode(keys.issuerXseed));
 
   const url = process.env.NATS_URL ?? 'nats://localhost:4222';
   const nc = await connect({servers: url, user: 'auth', pass: 'auth'});
@@ -67,7 +77,8 @@ async function main() {
       } catch {
         // Encrypted: msg.headers contains 'Nats-Server-Xkey' for sealing-back
         const serverXkey = msg.headers?.get('Nats-Server-Xkey') ?? '';
-        if (!serverXkey) throw new Error('encrypted request without server xkey');
+        if (!serverXkey)
+          throw new Error('encrypted request without server xkey');
         const decrypted = xkey.open(raw, serverXkey);
         if (!decrypted) throw new Error('xkey decrypt failed');
         claim = decode<any>(new TextDecoder().decode(decrypted));
@@ -82,7 +93,9 @@ async function main() {
 
       const rec = USERS[userClaim];
       const ok = rec && rec.pass === pass;
-      console.log(`[callout] req user=${userClaim} → ${ok ? 'OK ('+rec!.account+')' : 'DENY'}`);
+      console.log(
+        `[callout] req user=${userClaim} → ${ok ? 'OK (' + rec!.account + ')' : 'DENY'}`,
+      );
 
       const userKey = fromPublic(userNkey);
       const serverKey = fromPublic(serverId);
@@ -90,18 +103,24 @@ async function main() {
       let respJwt: string;
       if (ok) {
         const userJwt = await encodeUser(
-          userClaim, userKey, issuer,
+          userClaim,
+          userKey,
+          issuer,
           {permissions: rec!.permissions} as any,
           {algorithm: Algorithms.v2},
         );
         respJwt = await encodeAuthorizationResponse(
-          userKey, serverKey, issuer,
+          userKey,
+          serverKey,
+          issuer,
           {jwt: userJwt},
           {algorithm: Algorithms.v2},
         );
       } else {
         respJwt = await encodeAuthorizationResponse(
-          userKey, serverKey, issuer,
+          userKey,
+          serverKey,
+          issuer,
           {error: 'invalid credentials'},
           {algorithm: Algorithms.v2},
         );
@@ -118,4 +137,7 @@ async function main() {
     }
   }
 }
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

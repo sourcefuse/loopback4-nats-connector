@@ -1,6 +1,11 @@
 import {inject} from '@loopback/core';
 import {post, requestBody} from '@loopback/rest';
-import {NatsConnectorComponentBindings as N, NatsPublisher, subscribe, type SubscriptionContext} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponentBindings as N,
+  NatsPublisher,
+  subscribe,
+  type SubscriptionContext,
+} from 'loopback-nats-connector';
 
 /** Core Publish-Subscribe — natsbyexample.com/examples/messaging/pub-sub */
 export class PubSubController {
@@ -8,7 +13,10 @@ export class PubSubController {
 
   @subscribe('events.>')
   async onEvent(payload: unknown, ctx: SubscriptionContext): Promise<void> {
-    console.log(`[pub-sub] events.> on ${ctx.subject}:`, JSON.stringify(payload));
+    console.log(
+      `[pub-sub] events.> on ${ctx.subject}:`,
+      JSON.stringify(payload),
+    );
   }
 
   @subscribe('news.*')
@@ -17,7 +25,9 @@ export class PubSubController {
   }
 
   @post('/publish')
-  async publish(@requestBody() body: {subject: string; payload: unknown}): Promise<{published: true}> {
+  async publish(
+    @requestBody() body: {subject: string; payload: unknown},
+  ): Promise<{published: true}> {
     await this.pub.publish(body.subject, body.payload);
     return {published: true};
   }

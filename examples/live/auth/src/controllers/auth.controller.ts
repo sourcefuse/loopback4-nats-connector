@@ -1,9 +1,19 @@
 import {inject} from '@loopback/core';
 import {get, param, post, requestBody} from '@loopback/rest';
-import {NatsConnectorComponentBindings as N, NatsPublisher, reply, subscribe} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponentBindings as N,
+  NatsPublisher,
+  reply,
+  subscribe,
+} from 'loopback-nats-connector';
 
-interface GreetReq { name: string }
-interface GreetRes { greeting: string; ts: number }
+interface GreetReq {
+  name: string;
+}
+interface GreetRes {
+  greeting: string;
+  ts: number;
+}
 
 /**
  * Authentication & Authorization category — comprehensive coverage.
@@ -54,7 +64,10 @@ export class AuthController {
   // Multi-tenancy — subscribe to imported subject from another account
   @subscribe('weather.events.>')
   async onWeather(payload: unknown): Promise<void> {
-    console.log('[auth] weather.events.> (imported stream):', JSON.stringify(payload));
+    console.log(
+      '[auth] weather.events.> (imported stream):',
+      JSON.stringify(payload),
+    );
   }
 
   @get('/whoami')
@@ -63,7 +76,9 @@ export class AuthController {
   }
 
   @post('/secure-publish')
-  async publish(@requestBody() body: {subject: string; payload: unknown}): Promise<{published: true}> {
+  async publish(
+    @requestBody() body: {subject: string; payload: unknown},
+  ): Promise<{published: true}> {
     await this.pub.publish(body.subject, body.payload);
     console.log(`[auth] published ${body.subject}`);
     return {published: true};

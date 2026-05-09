@@ -1,8 +1,16 @@
 import {inject} from '@loopback/core';
 import {get, param} from '@loopback/rest';
-import {NatsConnectorComponentBindings as N, NatsPublisher, reply} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponentBindings as N,
+  NatsPublisher,
+  reply,
+} from 'loopback-nats-connector';
 
-interface MathReq { a: number; b: number; op: 'add'|'mul' }
+interface MathReq {
+  a: number;
+  b: number;
+  op: 'add' | 'mul';
+}
 
 /** Request-Reply — natsbyexample.com/examples/messaging/request-reply */
 export class RequestReplyController {
@@ -18,7 +26,9 @@ export class RequestReplyController {
   @reply('math.calc')
   async calc(req: MathReq): Promise<{result: number}> {
     const result = req.op === 'add' ? req.a + req.b : req.a * req.b;
-    console.log(`[req-reply] @reply math.calc ${req.a}${req.op}${req.b}=${result}`);
+    console.log(
+      `[req-reply] @reply math.calc ${req.a}${req.op}${req.b}=${result}`,
+    );
     return {result};
   }
 
@@ -31,7 +41,7 @@ export class RequestReplyController {
   async httpCalc(
     @param.query.number('a') a: number,
     @param.query.number('b') b: number,
-    @param.query.string('op') op: 'add'|'mul',
+    @param.query.string('op') op: 'add' | 'mul',
   ): Promise<unknown> {
     return this.pub.request<MathReq, unknown>('math.calc', {a, b, op});
   }

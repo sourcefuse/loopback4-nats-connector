@@ -1,11 +1,30 @@
 import {inject} from '@loopback/core';
 import {get, param, post, requestBody} from '@loopback/rest';
-import {NatsConnectorComponentBindings as N, type JetStreamClient} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponentBindings as N,
+  type JetStreamClient,
+} from 'loopback-nats-connector';
 
-interface AppEvent { type: string; user?: string; ts?: number; data?: unknown }
-interface Order    { orderId: string; amount: number; currency?: string }
-interface Job      { jobId: string; type: string; payload?: unknown }
-interface PriorityTask { taskId: string; priority: 'high'|'normal'|'low' }
+interface AppEvent {
+  type: string;
+  user?: string;
+  ts?: number;
+  data?: unknown;
+}
+interface Order {
+  orderId: string;
+  amount: number;
+  currency?: string;
+}
+interface Job {
+  jobId: string;
+  type: string;
+  payload?: unknown;
+}
+interface PriorityTask {
+  taskId: string;
+  priority: 'high' | 'normal' | 'low';
+}
 
 /**
  * JetStream category — non-legacy coverage.
@@ -38,7 +57,9 @@ export class JetStreamController {
   }
 
   @get('/events/process')
-  async processEvents(@param.query.integer('batch') batch: number = 5): Promise<unknown> {
+  async processEvents(
+    @param.query.integer('batch') batch: number = 5,
+  ): Promise<unknown> {
     const consumer = await this.js.consumers.get('EVENTS', 'event-processor');
     const msgs = await consumer.fetch({max_messages: batch, expires: 2000});
     const out: any[] = [];
@@ -54,21 +75,28 @@ export class JetStreamController {
   // ── Interest Stream + ack-ack ──
   @post('/orders')
   async publishOrder(@requestBody() order: Order): Promise<{seq: number}> {
-    const ack = await this.js.publish(`orders.${order.orderId}`, JSON.stringify(order));
+    const ack = await this.js.publish(
+      `orders.${order.orderId}`,
+      JSON.stringify(order),
+    );
     console.log(`[interest] orders.${order.orderId} seq=${ack.seq}`);
     return {seq: ack.seq};
   }
 
   @get('/orders/process')
-  async processOrders(@param.query.integer('batch') batch: number = 5): Promise<unknown> {
+  async processOrders(
+    @param.query.integer('batch') batch: number = 5,
+  ): Promise<unknown> {
     const consumer = await this.js.consumers.get('ORDERS', 'order-validator');
     const msgs = await consumer.fetch({max_messages: batch, expires: 2000});
     const out: any[] = [];
     for await (const m of msgs) {
       const order = JSON.parse(new TextDecoder().decode(m.data));
-      await m.ackAck();   // confirmed ack — waits for server
+      await m.ackAck(); // confirmed ack — waits for server
       out.push({seq: m.seq, orderId: order.orderId, ack: 'confirmed'});
-      console.log(`[ack-ack] ORDERS seq=${m.seq} orderId=${order.orderId} ackAck=ok`);
+      console.log(
+        `[ack-ack] ORDERS seq=${m.seq} orderId=${order.orderId} ackAck=ok`,
+      );
     }
     return {processed: out.length, items: out};
   }
@@ -77,7 +105,9 @@ export class JetStreamController {
   @post('/jobs')
   async publishJob(@requestBody() job: Job): Promise<{seq: number}> {
     const ack = await this.js.publish(`jobs.${job.type}`, JSON.stringify(job));
-    console.log(`[workqueue] jobs.${job.type} seq=${ack.seq} jobId=${job.jobId}`);
+    console.log(
+      `[workqueue] jobs.${job.type} seq=${ack.seq} jobId=${job.jobId}`,
+    );
     return {seq: ack.seq};
   }
 
@@ -94,8 +124,13 @@ export class JetStreamController {
 
   // ── Pull Consumer Limits — natsbyexample/pull-consumer-limits ──
   @post('/priority')
-  async publishPriority(@requestBody() task: PriorityTask): Promise<{seq: number}> {
-    const ack = await this.js.publish(`priority.${task.priority}`, JSON.stringify(task));
+  async publishPriority(
+    @requestBody() task: PriorityTask,
+  ): Promise<{seq: number}> {
+    const ack = await this.js.publish(
+      `priority.${task.priority}`,
+      JSON.stringify(task),
+    );
     console.log(`[priority] priority.${task.priority} seq=${ack.seq}`);
     return {seq: ack.seq};
   }
@@ -110,7 +145,10 @@ export class JetStreamController {
     //   max_batch=10       → per-fetch cap (server caps even if batch>10)
     //   max_expires=30s    → client cannot exceed
     //   max_bytes=1MB      → batch byte cap
-    const consumer = await this.js.consumers.get('PRIORITY', 'priority-limited');
+    const consumer = await this.js.consumers.get(
+      'PRIORITY',
+      'priority-limited',
+    );
     const info = await consumer.info();
     const out: any[] = [];
     let limitError: string | undefined;
@@ -125,7 +163,9 @@ export class JetStreamController {
       limitError = (err as Error).message;
       console.log('[pull-limits] server enforced limit:', limitError);
     }
-    console.log(`[pull-limits] PRIORITY processed=${out.length} (max_ack_pending=${info.config.max_ack_pending} max_batch=${info.config.max_batch})`);
+    console.log(
+      `[pull-limits] PRIORITY processed=${out.length} (max_ack_pending=${info.config.max_ack_pending} max_batch=${info.config.max_batch})`,
+    );
     return {
       processed: out.length,
       ...(limitError ? {limitError} : {}),
@@ -142,10 +182,15 @@ export class JetStreamController {
   // ── Subject-Mapped Partitions — natsbyexample/partitions ──
   // Run only with server-partitions.conf + PARTITIONS=1 provision flag.
   @post('/partitioned-events')
-  async publishPartitioned(@requestBody() body: {key: string; data: unknown}): Promise<unknown> {
+  async publishPartitioned(
+    @requestBody() body: {key: string; data: unknown},
+  ): Promise<unknown> {
     // Server's mapping rewrites events.<key> → events.<key>.<partition>
     // Client uses original subject; server routes to partition stream.
-    const ack = await this.js.publish(`events.${body.key}`, JSON.stringify(body.data));
+    const ack = await this.js.publish(
+      `events.${body.key}`,
+      JSON.stringify(body.data),
+    );
     console.log(`[partitions] published events.${body.key} seq=${ack.seq}`);
     return {originalSubject: `events.${body.key}`, seq: ack.seq};
   }
@@ -157,7 +202,10 @@ export class JetStreamController {
   ): Promise<unknown> {
     const stream = `PARTITION-${n}`;
     try {
-      const consumer = await this.js.consumers.get(stream, 'partition-consumer');
+      const consumer = await this.js.consumers.get(
+        stream,
+        'partition-consumer',
+      );
       const msgs = await consumer.fetch({max_messages: batch, expires: 1000});
       const out: any[] = [];
       for await (const m of msgs) {
@@ -167,7 +215,11 @@ export class JetStreamController {
       console.log(`[partitions] ${stream} processed=${out.length}`);
       return {partition: n, stream, processed: out.length, items: out};
     } catch {
-      return {partition: n, stream, error: 'stream not provisioned (PARTITIONS=1 npm run provision)'};
+      return {
+        partition: n,
+        stream,
+        error: 'stream not provisioned (PARTITIONS=1 npm run provision)',
+      };
     }
   }
 
