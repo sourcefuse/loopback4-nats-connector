@@ -1,5 +1,8 @@
 import {injectable, inject, BindingScope} from '@loopback/core';
-import {NatsConnectorComponentBindings as N, type JetStreamClient} from 'loopback-nats-connector';
+import {
+  NatsConnectorComponentBindings as N,
+  type JetStreamClient,
+} from 'loopback-nats-connector';
 import {Objm, type ObjectStore, type ObjectInfo} from '@nats-io/obj';
 
 /**
@@ -23,7 +26,11 @@ export class FileStorageService {
     return this.os;
   }
 
-  async put(name: string, data: Uint8Array, description?: string): Promise<ObjectInfo> {
+  async put(
+    name: string,
+    data: Uint8Array,
+    description?: string,
+  ): Promise<ObjectInfo> {
     const os = await this.getOs();
     return os.put({name, description}, readableStreamFromBytes(data));
   }
@@ -68,7 +75,9 @@ function readableStreamFromBytes(data: Uint8Array): ReadableStream<Uint8Array> {
   });
 }
 
-async function readAllBytes(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+async function readAllBytes(
+  stream: ReadableStream<Uint8Array>,
+): Promise<Uint8Array> {
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -83,6 +92,9 @@ async function readAllBytes(stream: ReadableStream<Uint8Array>): Promise<Uint8Ar
   }
   const out = new Uint8Array(total);
   let off = 0;
-  for (const c of chunks) { out.set(c, off); off += c.byteLength; }
+  for (const c of chunks) {
+    out.set(c, off);
+    off += c.byteLength;
+  }
   return out;
 }

@@ -29,4 +29,7 @@ async function main() {
   }
   await nc.drain();
 }
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

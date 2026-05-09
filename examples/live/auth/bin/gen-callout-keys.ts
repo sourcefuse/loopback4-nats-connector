@@ -14,19 +14,26 @@ async function main() {
   const account = createAccount();
   const xkey = createCurve();
 
-  const issuerNkey  = account.getPublicKey();
-  const issuerSeed  = new TextDecoder().decode(account.getSeed());
-  const issuerXkey  = xkey.getPublicKey();
+  const issuerNkey = account.getPublicKey();
+  const issuerSeed = new TextDecoder().decode(account.getSeed());
+  const issuerXkey = xkey.getPublicKey();
   const issuerXseed = new TextDecoder().decode(xkey.getSeed());
 
   const out = {issuerNkey, issuerSeed, issuerXkey, issuerXseed};
-  fs.writeFileSync(path.join(__dirname, 'callout-keys.json'),
-    JSON.stringify(out, null, 2));
-  fs.writeFileSync(path.join(__dirname, '.callout.env'),
-    `export ISSUER_NKEY=${issuerNkey}\nexport ISSUER_XKEY=${issuerXkey}\n`);
+  fs.writeFileSync(
+    path.join(__dirname, 'callout-keys.json'),
+    JSON.stringify(out, null, 2),
+  );
+  fs.writeFileSync(
+    path.join(__dirname, '.callout.env'),
+    `export ISSUER_NKEY=${issuerNkey}\nexport ISSUER_XKEY=${issuerXkey}\n`,
+  );
 
   console.log('issuerNkey:', issuerNkey);
   console.log('issuerXkey:', issuerXkey);
   console.log('files: bin/callout-keys.json, bin/.callout.env');
 }
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

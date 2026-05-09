@@ -9,7 +9,13 @@
  *                        server-partitions.conf for subject mapping)
  */
 import {connect} from '@nats-io/transport-node';
-import {jetstreamManager, RetentionPolicy, StorageType, AckPolicy, DiscardPolicy} from '@nats-io/jetstream';
+import {
+  jetstreamManager,
+  RetentionPolicy,
+  StorageType,
+  AckPolicy,
+  DiscardPolicy,
+} from '@nats-io/jetstream';
 
 async function ensureStream(jsm: any, cfg: any) {
   try {
@@ -34,7 +40,9 @@ async function deleteStream(jsm: any, name: string) {
   try {
     await jsm.streams.delete(name);
     console.log(`stream ${name} deleted`);
-  } catch { /* ok */ }
+  } catch {
+    /* ok */
+  }
 }
 
 async function main() {
@@ -132,4 +140,7 @@ async function main() {
 
   await nc.drain();
 }
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
