@@ -16,6 +16,7 @@
  *
  * See: docs/plan/05-internals.md §services/connection-registry.service.ts.
  */
+import 'disposablestack/auto';
 import {
   Context,
   CoreBindings,
