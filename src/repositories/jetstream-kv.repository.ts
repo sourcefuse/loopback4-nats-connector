@@ -18,7 +18,7 @@
  *   - docs/plan/05-internals.md  §`repositories/jetstream-kv.repository.ts`
  */
 import type {JetStreamClient} from '@nats-io/jetstream';
-import {EventEmitter, addAbortListener} from 'events';
+import {EventEmitter, addAbortListener} from 'node:events';
 import {Kvm} from '@nats-io/kv';
 import type {KV, KvEntry} from '@nats-io/kv';
 import type {Codec} from '../types';
@@ -59,7 +59,7 @@ export abstract class JetStreamKvRepository<T> {
   async get(key: string): Promise<T | undefined> {
     const kv = await this.kvOrInit();
     const entry = await kv.get(key);
-    if (!entry || entry.operation !== 'PUT') return undefined;
+    if (entry?.operation !== 'PUT') return undefined;
     return this.codec.decode(entry.value) as T;
   }
 

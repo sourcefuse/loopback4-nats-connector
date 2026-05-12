@@ -1,5 +1,5 @@
 import {BindingKey, CoreBindings, MetadataAccessor} from '@loopback/core';
-import type {EventEmitter} from 'events';
+import type {EventEmitter} from 'node:events';
 import type {NatsConnection} from '@nats-io/nats-core';
 import type {JetStreamClient} from '@nats-io/jetstream';
 import type {NatsConnectorComponent} from './component';

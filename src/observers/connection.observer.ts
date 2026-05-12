@@ -29,7 +29,7 @@ import {
   lifeCycleObserver,
   LifeCycleObserver,
 } from '@loopback/core';
-import {EventEmitter, addAbortListener} from 'events';
+import {EventEmitter, addAbortListener} from 'node:events';
 import {connect} from '@nats-io/transport-node';
 import {nkeyAuthenticator, jwtAuthenticator} from '@nats-io/nats-core';
 import type {
@@ -56,7 +56,11 @@ import {
   bindConnectionForName,
   unbindConnectionForName,
 } from './bind-connection';
-import type {ConnectionOptions, NatsConnectorOptionsCanonical} from '../types';
+import type {
+  ConnectionOptions,
+  NatsConnectorOptionsCanonical,
+  TlsOptions,
+} from '../types';
 
 interface OpenedConnection {
   name: string;
@@ -139,7 +143,7 @@ export class ConnectionObserver implements LifeCycleObserver {
   private aliasResolvedDefault(): void {
     const resolved = this.pickDefaultConnectionName();
     if (!resolved) return;
-    if (!this.opened.find(o => o.name === resolved)) return;
+    if (!this.opened.some(o => o.name === resolved)) return;
 
     this.bindDefaultAliases(resolved);
   }
@@ -236,8 +240,6 @@ export function buildConnectOptions(
 function toBytes(seed: string | Uint8Array): Uint8Array {
   return typeof seed === 'string' ? new TextEncoder().encode(seed) : seed;
 }
-
-import type {TlsOptions} from '../types';
 
 const TLS_PASSTHROUGH_KEYS = [
   'certFile',

@@ -58,7 +58,7 @@ describe('JsonCodec', () => {
 
   it('decode propagates JSON.parse errors (caller responsibility)', () => {
     const bad = new TextEncoder().encode('{not json');
-    expect(() => c.decode(bad)).to.throw();
+    expect(() => c.decode(bad)).to.throw(Error, /codec decode failed/);
   });
 });
 

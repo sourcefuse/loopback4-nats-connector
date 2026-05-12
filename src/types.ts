@@ -132,18 +132,20 @@ export interface ReplyOptions {
   queue?: string;
 }
 
+export type DeliverPolicy =
+  | 'all'
+  | 'last'
+  | 'new'
+  | 'byStartSequence'
+  | 'byStartTime'
+  | 'lastPerSubject';
+
 /** v2 — full surface deferred until JetStream impl. */
 export interface JsConsumeOptions {
   connection?: string;
   ackPolicy?: 'none' | 'all' | 'explicit';
   autoAck?: boolean;
-  deliverPolicy?:
-    | 'all'
-    | 'last'
-    | 'new'
-    | 'byStartSequence'
-    | 'byStartTime'
-    | 'lastPerSubject';
+  deliverPolicy?: DeliverPolicy;
   optStartSeq?: number;
   optStartTime?: string;
   filterSubject?: string;

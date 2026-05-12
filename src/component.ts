@@ -85,10 +85,10 @@ export function normalizeOptions(
 ): NatsConnectorOptionsCanonical {
   if (isFlat(input)) {
     return {
-      connections: {default: input as ConnectionOptions},
+      connections: {default: input},
     };
   }
-  const canonical = input as NatsConnectorOptionsCanonical;
+  const canonical = input;
   // Empty connections map is permitted: registry-only / dynamic-tenant mode
   // (see examples/03-multi-tenant-dynamic). Connections are added at runtime
   // via NatsConnectionRegistry.add() instead of statically here.

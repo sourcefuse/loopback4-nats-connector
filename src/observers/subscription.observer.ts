@@ -172,7 +172,7 @@ export class SubscriptionBooter implements LifeCycleObserver {
         }
       }),
     );
-    await Promise.all([...this.inflight]);
+    await Promise.all(this.inflight);
     this.inflight.clear();
     this.handles = [];
   }
@@ -185,7 +185,7 @@ export class SubscriptionBooter implements LifeCycleObserver {
       // eslint-disable-next-line no-await-in-loop
       await this.register(tpl.bindingKey, tpl.methodName, concrete);
       const last = this.handles[this.handles.length - 1];
-      if (last && last.connection === name) last.fromTemplate = true;
+      if (last?.connection === name) last.fromTemplate = true;
     }
   }
 

@@ -15,6 +15,7 @@
 import type {NatsConnection} from '@nats-io/nats-core';
 import type {Codec, PublishOptions, RequestOptions} from '../types';
 
+const DEFAULT_REQUEST_TIMEOUT_MS = 5_000;
 export class NatsPublisher {
   constructor(
     private readonly conn: NatsConnection,
@@ -49,7 +50,7 @@ export class NatsPublisher {
     opts: RequestOptions = {},
   ): Promise<Res> {
     const msg = await this.conn.request(subject, this.codec.encode(payload), {
-      timeout: opts.timeout ?? 5_000,
+      timeout: opts.timeout ?? DEFAULT_REQUEST_TIMEOUT_MS,
       headers: opts.headers,
       noMux: opts.noMux,
       reply: opts.reply,

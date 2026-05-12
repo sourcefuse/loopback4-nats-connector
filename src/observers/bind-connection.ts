@@ -13,7 +13,7 @@
  *   - docs/plan/09-multi-connection.md §isolation guarantees
  */
 import {Binding, BindingScope, Context} from '@loopback/core';
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import type {NatsConnection} from '@nats-io/nats-core';
 import {jetstream as jetstreamFn} from '@nats-io/jetstream';
 import type {JetStreamClient, JetStreamOptions} from '@nats-io/jetstream';

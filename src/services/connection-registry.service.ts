@@ -24,7 +24,7 @@ import {
   inject,
   lifeCycleObserver,
 } from '@loopback/core';
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import type {Application} from '@loopback/core';
 import type {NatsConnection} from '@nats-io/nats-core';
 import {
