@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.eslintrc.js
+examples/
+knowledge/
+docs/
+
+.cz_config.js
+commitlint.config.js
+
+.eslintignore

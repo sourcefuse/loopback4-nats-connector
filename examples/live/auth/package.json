@@ -1,0 +1,38 @@
+{
+  "name": "live-auth",
+  "version": "0.0.1",
+  "description": "natsbyexample Auth category — token, user/pass, NKey, JWT, mTLS, permissions, accounts, callout, private inbox",
+  "private": true,
+  "main": "dist/auth/src/index.js",
+  "engines": {"node": "20 || 22 || 24"},
+  "scripts": {
+    "build": "tsc",
+    "gen-callout-keys": "node dist/auth/bin/gen-callout-keys.js",
+    "callout-service":  "node dist/auth/bin/callout-service.js",
+    "gen-tls-certs":    "bash tls/gen-certs.sh",
+    "start":           "node dist/auth/src/index.js",
+    "start:token":     "AUTH_MODE=token     node dist/auth/src/index.js",
+    "start:userpass":  "AUTH_MODE=userpass  node dist/auth/src/index.js",
+    "start:tls":       "AUTH_MODE=tls       node dist/auth/src/index.js",
+    "start:nkey":      "AUTH_MODE=nkey      node dist/auth/src/index.js",
+    "start:jwt":       "AUTH_MODE=jwt       node dist/auth/src/index.js",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "loopback-nats-connector": "file:../../..",
+    "@loopback/boot": "^8.0.12",
+    "@loopback/core": "^7.0.11",
+    "@loopback/rest": "^15.0.12",
+    "@loopback/rest-explorer": "^8.0.12",
+    "@nats-io/jwt": "^0.0.11",
+    "@nats-io/nkeys": "^2",
+    "@nats-io/transport-node": "^3",
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "rimraf": "^5.0.10",
+    "source-map-support": "^0.5.21",
+    "typescript": "~5.2.2"
+  }
+}
