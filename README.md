@@ -30,11 +30,10 @@ A [LoopBack 4](https://loopback.io/doc/en/lb4/) extension that exposes
 Decorate controller methods with `@subscribe` / `@reply`, inject a
 `NatsPublisher`, and configure one or more isolated named connections.
 
-
 ## Installation
 
 ```sh
-npm install loopback-nats-connector
+npm install loopback4-nats-connector
 ```
 
 ## Basic usage (v1, single connection)
@@ -47,7 +46,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import {
   NatsConnectorComponent,
   NatsConnectorComponentBindings,
-} from 'loopback-nats-connector';
+} from 'loopback4-nats-connector';
 
 export class MyApp extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -74,7 +73,7 @@ import {
   NatsPublisher,
   NatsConnectorComponentBindings as N,
   type SubscriptionContext,
-} from 'loopback-nats-connector';
+} from 'loopback4-nats-connector';
 
 export class HelloController {
   constructor(@inject(N.PUBLISHER) private publisher: NatsPublisher) {}
@@ -154,7 +153,7 @@ import {
   NatsConnectorComponentBindings as N,
   subscribe,
   type SubscriptionContext,
-} from 'loopback-nats-connector';
+} from 'loopback4-nats-connector';
 
 class OnboardingService {
   constructor(@inject(N.REGISTRY) private nats: NatsConnectionRegistry) {}
@@ -193,8 +192,8 @@ The `connection: '*'` path avoids this: decorators are stored as templates
 during `start()` and materialised per-connection each time
 `registry.add(name, opts)` fires.
 
-| Scenario                            | `connection` value | Works?       |
-| ----------------------------------- | ------------------ | ------------ |
+| Scenario                            | `connection` value | Works?        |
+| ----------------------------------- | ------------------ | ------------- |
 | Static connection in config         | `'myconn'`         | ✅            |
 | Dynamic, added before `app.start()` | `'tenant1'`        | ✅            |
 | Dynamic, added after `app.start()`  | `'tenant1'`        | ❌ boot error |
@@ -243,7 +242,7 @@ import {
   NatsConnectionRegistry,
   // codec contract
   type Codec,
-} from 'loopback-nats-connector';
+} from 'loopback4-nats-connector';
 ```
 
 ## Troubleshooting
@@ -257,10 +256,29 @@ First-failure debugging path. Symptom on the left, where to look on the right.
 | Disconnects, reconnect noise, slow consumer                             | Subscribe to per-connection emitter at `N.events('<name>')` to monitor status events.                                         |
 | `request()` rejects with `code: '503'`                                  | No responder for subject (nats.js behavior, surfaced unchanged). Check subscriber registered, broker reachable, subject typo. |
 | Need a nats.js method missing from `NatsPublisher` (e.g. `requestMany`) | Inject raw `NatsConnection` at `N.CONNECTION` as an escape hatch.                                                             |
-| `headers()` import not found                                            | Re-exported from package root: `import {headers} from 'loopback-nats-connector'`. Do not import from `nats`.                  |
+| `headers()` import not found                                            | Re-exported from package root: `import {headers} from 'loopback4-nats-connector'`. Do not import from `nats`.                 |
 | Multi-tenant: messages published in onboarding race window lost         | Documented behavior on core NATS. Use a retry/queue mechanism before calling `registry.add()` to close the race window.       |
 | Codec decode fails on inbound                                           | Raw bytes available on `ctx.raw`.                                                                                             |
 | One connection failed at boot, others fine                              | Intentional. Subscriptions targeting the failed name raise loudly during booter pass.                                         |
+
+## Publishing a release
+
+Releases are created only by manually running the **Release [Manual]** workflow
+from the `main` branch. The workflow verifies the build, tests, lint checks, and
+package contents before semantic-release determines the next version from the
+conventional commit history and publishes it to npm.
+
+For the first publish of a new package, add a granular npm access token with
+publish permission and 2FA bypass as the `NPM_TOKEN` repository secret. After
+that release, configure `sourcefuse/loopback4-nats-connector` as the package's
+trusted publisher on npm, use `release.yaml` as the workflow filename, allow
+direct publishing, and remove `NPM_TOKEN`. Future releases authenticate with
+short-lived OIDC credentials and do not need an npm token.
+
+The workflow uses `RELEASE_COMMIT_GH_PAT` when it is configured; otherwise it
+uses the repository's `GITHUB_TOKEN`. The optional `RELEASE_COMMIT_USERNAME`
+and `RELEASE_COMMIT_EMAIL` repository variables control the release commit
+author.
 
 ## Requirements
 

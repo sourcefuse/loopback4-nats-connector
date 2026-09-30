@@ -1,54 +1,65 @@
-# This Manually Executable Workflow is for NPM Releases
 name: Release [Manual]
-on: workflow_dispatch
+
+# Publishing is intentionally manual. npm trusted publishing must be configured
+# with this workflow filename (release.yaml) before the first run.
+on:
+  workflow_dispatch:
 
 permissions:
   contents: write
-  id-token: write   # REQUIRED for trusted publishing
+  issues: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
 
 jobs:
-  Release:
+  release:
+    name: Verify and publish
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Specify environment if you configured one in npm
-    # environment: production  # Uncomment if you set an environment name in npm trusted publisher settings
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v6
         with:
-          # fetch-depth is necessary to get all tags
-          # otherwise lerna can't detect the changes and will end up bumping the versions for all packages
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_COMMIT_GH_PAT }}
+          token: ${{ secrets.RELEASE_COMMIT_GH_PAT || github.token }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4  # UPDATED to v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-          always-auth: false  # for trusted publishing
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - name: Configure CI Git User
-        run: |
-          git config --global user.name $CONFIG_USERNAME
-          git config --global user.email $CONFIG_EMAIL
-          git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_PAT@github.com/sourcefuse/loopback4-nats-connector
-        env:
-          GITHUB_PAT: ${{ secrets.RELEASE_COMMIT_GH_PAT }}
-          CONFIG_USERNAME: ${{ vars.RELEASE_COMMIT_USERNAME }}
-          CONFIG_EMAIL: ${{ vars.RELEASE_COMMIT_EMAIL }}
+      - name: Update npm for trusted publishing
+        run: npm install --global npm@latest
 
-      - name: Install 📌
+      - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Test 🔧
-        run: npm run test
-
-      # CHANGED THIS SECTION
-      - name: Semantic Publish to NPM 🚀
+      - name: Verify package
         run: |
-          npm config set provenance true
-          HUSKY=0 npx semantic-release
+          npm test
+          HUSKY=0 npm run package:check
+
+      - name: Configure release commit author
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_COMMIT_GH_PAT }}
-          # NPM_TOKEN is not needed with trusted publishing
-          # The id-token: write permission above handles authentication
+          CONFIG_USERNAME: ${{ vars.RELEASE_COMMIT_USERNAME }}
+          CONFIG_EMAIL: ${{ vars.RELEASE_COMMIT_EMAIL }}
+        run: |
+          git config user.name "${CONFIG_USERNAME:-github-actions[bot]}"
+          git config user.email "${CONFIG_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_COMMIT_GH_PAT || github.token }}
+          # Bootstrap an unpublished package with this secret, then remove it
+          # after configuring npm trusted publishing for release.yaml.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HUSKY: 0
+        run: npx --no-install semantic-release

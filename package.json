@@ -14,6 +14,14 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "engines": {
     "node": ">=22"
   },
@@ -32,7 +40,9 @@
     "test": "lb-mocha --allow-console-logs dist/__tests__",
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
-    "prepare": "husky install",
+    "prepare": "node scripts/prepare.js",
+    "prepack": "npm run rebuild",
+    "package:check": "npm pack --dry-run",
     "rebuild": "npm run clean && npm run build",
     "examples": "bash examples/run-all.sh"
   },
@@ -47,10 +57,8 @@
   "author": "Sourcefuse",
   "license": "MIT",
   "files": [
-    "README.md",
     "dist",
-    "src",
-    "!*/__tests__"
+    "!dist/__tests__"
   ],
   "peerDependencies": {
     "@loopback/core": "^7.0.3"
@@ -120,6 +128,10 @@
           "preset": "angular",
           "releaseRules": [
             {
+              "header": "initial commit",
+              "release": "patch"
+            },
+            {
               "type": "chore",
               "scope": "deps",
               "release": "patch"
@@ -128,6 +140,7 @@
         }
       ],
       "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
       [
         "@semantic-release/npm",
         {

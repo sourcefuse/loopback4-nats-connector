@@ -12,7 +12,7 @@ import type {
 } from './types';
 
 /**
- * Binding keys exposed by `loopback-nats-connector`.
+ * Binding keys exposed by `loopback4-nats-connector`.
  *
  * Static keys (`COMPONENT`, `REGISTRY`, plus resolved-default aliases
  * `CONNECTION` / `CODEC` / `EVENTS` / `PUBLISHER` / `JETSTREAM`) are

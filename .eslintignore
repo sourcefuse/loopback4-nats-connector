@@ -5,6 +5,7 @@ coverage/
 examples/
 knowledge/
 docs/
+scripts/
 
 .cz_config.js
 commitlint.config.js

@@ -1,7 +1,7 @@
 /**
- * Public + internal type schemas for `loopback-nats-connector`.
+ * Public + internal type schemas for `loopback4-nats-connector`.
  *
- * Consumers import from the package root: `import type { ... } from 'loopback-nats-connector';`
+ * Consumers import from the package root: `import type { ... } from 'loopback4-nats-connector';`
  *
  * See:
  *   - docs/plan/04-public-api.md — public surface contract

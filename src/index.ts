@@ -1,5 +1,5 @@
 /**
- * Public surface of `loopback-nats-connector`.
+ * Public surface of `loopback4-nats-connector`.
  *
  * DX principle: consumers import everything from this package root —
  * never from `nats` directly. Same nats.js types under the hood, no
