@@ -128,10 +128,6 @@
           "preset": "angular",
           "releaseRules": [
             {
-              "header": "initial commit",
-              "release": "patch"
-            },
-            {
               "type": "chore",
               "scope": "deps",
               "release": "patch"

@@ -261,25 +261,6 @@ First-failure debugging path. Symptom on the left, where to look on the right.
 | Codec decode fails on inbound                                           | Raw bytes available on `ctx.raw`.                                                                                             |
 | One connection failed at boot, others fine                              | Intentional. Subscriptions targeting the failed name raise loudly during booter pass.                                         |
 
-## Publishing a release
-
-Releases are created only by manually running the **Release [Manual]** workflow
-from the `main` branch. The workflow verifies the build, tests, lint checks, and
-package contents before semantic-release determines the next version from the
-conventional commit history and publishes it to npm.
-
-For the first publish of a new package, add a granular npm access token with
-publish permission and 2FA bypass as the `NPM_TOKEN` repository secret. After
-that release, configure `sourcefuse/loopback4-nats-connector` as the package's
-trusted publisher on npm, use `release.yaml` as the workflow filename, allow
-direct publishing, and remove `NPM_TOKEN`. Future releases authenticate with
-short-lived OIDC credentials and do not need an npm token.
-
-The workflow uses `RELEASE_COMMIT_GH_PAT` when it is configured; otherwise it
-uses the repository's `GITHUB_TOKEN`. The optional `RELEASE_COMMIT_USERNAME`
-and `RELEASE_COMMIT_EMAIL` repository variables control the release commit
-author.
-
 ## Requirements
 
 - Node.js `>=22`

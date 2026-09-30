@@ -58,8 +58,5 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_COMMIT_GH_PAT || github.token }}
-          # Bootstrap an unpublished package with this secret, then remove it
-          # after configuring npm trusted publishing for release.yaml.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           HUSKY: 0
         run: npx --no-install semantic-release
