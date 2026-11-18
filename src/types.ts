@@ -120,7 +120,12 @@ export interface SubscribeOptions {
   queue?: string;
   /** Auto-drain after N messages — forwarded as `@nats-io/transport-node` `max`. */
   maxMessages?: number;
-  /** ms; if no message in window, sub errors. Forwarded as `@nats-io/transport-node` `timeout`. */
+  /**
+   * ms. Forwarded as `@nats-io/transport-node` `timeout`.
+   * If no message arrives in this window, the subscription logs a
+   * `TimeoutError` and closes. It is not created again. A message that
+   * arrives before the deadline cancels the timeout.
+   */
   timeout?: number;
   /** Pending-message threshold for `slowConsumer` event. Forwarded as `@nats-io/transport-node` `slow`. */
   slow?: number;
